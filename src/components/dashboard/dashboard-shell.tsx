@@ -1,28 +1,36 @@
 'use client'
 
-import { useState } from 'react'
-import Sidebar from '@/components/dashboard/sidebar'
-import ProtractorMenu from '@/components/dashboard/protractor-menu'
+import { useState, useEffect } from 'react'
+import BottomNav from '@/components/layout/bottom-nav'
+import ItemGrid from '@/components/dashboard/item-grid'
+import ProfileView from '@/components/dashboard/profile-view'
 import CreateItemForm from '@/components/dashboard/create-item-form'
 import QRCodeGenerator from '@/components/qr/qr-code-generator'
-import { Menu, QrCode, ArrowLeft } from 'lucide-react'
-import { signout } from '@/app/auth/actions'
-
 import ItemDetail from '@/components/dashboard/item-detail'
-import { createClient } from '@/utils/supabase/client'
-import { useEffect } from 'react'
 import InstallPrompt from '@/components/pwa/install-prompt'
+import { QrCode, ArrowLeft } from 'lucide-react'
+import { signout } from '@/app/auth/actions'
+import { createClient } from '@/utils/supabase/client'
 
 export default function DashboardShell({ user, initialItems = [] }: { user: any, initialItems?: any[] }) {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+    // Navigation State
+    const [currentTab, setCurrentTab] = useState('home') // 'home', 'profile'
+    const [viewStack, setViewStack] = useState<string[]>(['home']) // To manage history within dashboard
+
+    // Data State
     const [items, setItems] = useState(initialItems)
-    const [currentView, setCurrentView] = useState('home') // home, create, view-qr, detail
-    const [selectedCategory, setSelectedCategory] = useState('')
-    const [createdItem, setCreatedItem] = useState<any>(null)
     const [selectedItem, setSelectedItem] = useState<any>(null)
+    const [createdItem, setCreatedItem] = useState<any>(null)
     const [activeMessages, setActiveMessages] = useState<any[]>([])
 
+    // Create Mode State
+    const [isCreateMode, setIsCreateMode] = useState(false)
+    const [createCategory, setCreateCategory] = useState('')
+
     const supabase = createClient()
+
+    // Helper: Current active view is the top of the stack
+    const activeView = viewStack[viewStack.length - 1]
 
     // Fetch messages when an item is selected
     useEffect(() => {
@@ -40,30 +48,48 @@ export default function DashboardShell({ user, initialItems = [] }: { user: any,
         }
     }, [selectedItem])
 
-    const handleCreateClick = (category: string) => {
-        setSelectedCategory(category)
-        setCurrentView('create')
+    // -- Handlers --
+
+    const handleTabChange = (tab: string) => {
+        setCurrentTab(tab)
+        // Reset stack when switching tabs usually, but let's keep it simple
+        if (tab === 'home') setViewStack(['home'])
+        if (tab === 'profile') setViewStack(['profile'])
+    }
+
+    const handleCategorySelect = (category: string) => {
+        setCreateCategory(category)
+        setIsCreateMode(false) // Close menu
+        setViewStack([...viewStack, 'create-form']) // Push create form
     }
 
     const handleItemClick = (item: any) => {
         setSelectedItem(item)
-        setCurrentView('detail')
-        setIsSidebarOpen(false) // Close sidebar on mobile/desktop when selecting
+        setViewStack([...viewStack, 'detail'])
     }
 
     const handleCreateSuccess = (newItem: any) => {
-        // Optimistically add to list (in real app, maybe re-fetch or use real-time)
-        // Since we don't have the full item object from the create action return (just ID),
-        // we might need to handle this better. 
-        // For now, let's assume we want to show the QR code immediately.
-        // We can construct a temporary item or fetch it. 
-        // Simplified: Just set the minimal info needed for QR.
-
         setCreatedItem(newItem)
-        setCurrentView('view-qr')
-        // Also update list if we had the full object, but let's refresh page next time.
-        // Update local items list
-        setItems([newItem, ...items])
+        setItems([newItem, ...items]) // Update list
+        // Go to QR view properties
+        // Replace 'create-form' with 'view-qr' in stack
+        const newStack = [...viewStack]
+        newStack.pop() // remove create form
+        newStack.push('view-qr')
+        setViewStack(newStack)
+    }
+
+    const handleBack = () => {
+        if (viewStack.length > 1) {
+            const newStack = [...viewStack]
+            newStack.pop()
+            setViewStack(newStack)
+
+            // Sync tab state if we popped back to root
+            const top = newStack[newStack.length - 1]
+            if (top === 'home') setCurrentTab('home')
+            if (top === 'profile') setCurrentTab('profile')
+        }
     }
 
     const handleLogout = async () => {
@@ -71,91 +97,76 @@ export default function DashboardShell({ user, initialItems = [] }: { user: any,
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950/20 text-slate-900 dark:text-white relative overflow-hidden transition-colors duration-500">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white relative overflow-hidden transition-colors duration-500 pb-20">
 
-            {/* Top Bar */}
-            <div className="fixed top-0 left-0 right-0 h-16 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between px-4 z-20 shadow-sm transition-all">
-                <button
-                    onClick={() => setCurrentView('home')}
-                    className="flex items-center gap-3 group"
-                >
-                    <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-2 rounded-xl shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform duration-300">
-                        <QrCode className="h-5 w-5 text-white" />
+            {/* Top Bar (Only visible on Home/Profile root) */}
+            {viewStack.length === 1 && (
+                <div className="fixed top-0 left-0 right-0 h-24 pt-8 pb-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-20 px-6 flex items-center justify-between transition-all">
+                    <div>
+                        <h1 className="text-2xl font-bold tracking-tight">
+                            {currentTab === 'home' ? 'My Closet' : 'Profile'}
+                        </h1>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                            {currentTab === 'home' ? 'Manage your smart items' : 'Account Details'}
+                        </p>
                     </div>
-                    <span className="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300">
-                        JustMsg
-                    </span>
-                </button>
-
-                <button
-                    onClick={() => setIsSidebarOpen(true)}
-                    className="flex items-center gap-3 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 p-1.5 pr-4 pl-2 rounded-full transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700/50 group"
-                >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs shadow-md group-hover:shadow-lg transition-shadow">
-                        {user?.email?.[0].toUpperCase()}
-                    </div>
-                    <span className="text-sm font-medium hidden sm:block text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-                        {user?.email?.split('@')[0]}
-                    </span>
-                    <Menu className="h-4 w-4 ml-1 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors" />
-                </button>
-            </div>
-
-            {/* Main Content Area */}
-            <main className="pt-24 pb-32 px-4 max-w-4xl mx-auto min-h-screen flex flex-col">
-                {/* Placeholder Content for now */}
-                {currentView === 'home' && (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6 opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-forwards mt-10">
-                        <div className="relative group cursor-default">
-                            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-20 group-hover:opacity-30 blur-xl transition-opacity duration-500"></div>
-                            <div className="relative w-40 h-40 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-2xl shadow-blue-900/10 dark:shadow-blue-900/20 border border-slate-100 dark:border-slate-800">
-                                <span className="text-6xl filter drop-shadow-sm group-hover:scale-110 transition-transform duration-300">👋</span>
-                            </div>
+                    {currentTab === 'home' && (
+                        <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-3 py-1 rounded-full text-xs font-bold">
+                            {items.length} Items
                         </div>
+                    )}
+                </div>
+            )}
 
-                        <div className="space-y-2 max-w-md mx-auto">
-                            <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                                Welcome Back!
-                            </h2>
-                            <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-lg">
-                                Ready to organize? Tap the <span className="font-bold text-blue-600 dark:text-blue-400 mx-1">+</span> below to add a new item and create a smart QR code.
-                            </p>
-                        </div>
-                    </div>
+            {/* Main Content */}
+            <main className={`px-4 max-w-md mx-auto min-h-screen flex flex-col ${viewStack.length === 1 ? 'pt-28' : 'pt-6'}`}>
+
+                {activeView === 'home' && (
+                    <ItemGrid items={items} onItemClick={handleItemClick} />
                 )}
 
-                {currentView === 'detail' && selectedItem && (
+                {activeView === 'profile' && (
+                    <ProfileView user={user} itemCount={items.length} onLogout={handleLogout} />
+                )}
+
+                {activeView === 'detail' && selectedItem && (
                     <ItemDetail
                         item={selectedItem}
                         messages={activeMessages}
-                        onBack={() => setCurrentView('home')}
+                        onBack={handleBack}
                     />
                 )}
 
-                {currentView === 'create' && (
+                {activeView === 'create-form' && (
                     <CreateItemForm
-                        category={selectedCategory}
-                        onCancel={() => setCurrentView('home')}
-                        onSuccess={(newItem) => handleCreateSuccess(newItem)}
+                        category={createCategory}
+                        onCancel={handleBack}
+                        onSuccess={handleCreateSuccess}
                     />
                 )}
 
-                {currentView === 'view-qr' && createdItem && (
-                    <div className="flex flex-col items-center justify-center flex-1">
+                {activeView === 'view-qr' && createdItem && (
+                    <div className="flex flex-col items-center justify-center flex-1 pt-10 animate-in zoom-in-95 duration-500">
                         <button
-                            onClick={() => setCurrentView('home')}
-                            className="self-start mb-6 flex items-center text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
+                            onClick={() => {
+                                setViewStack(['home'])
+                                setCurrentTab('home')
+                            }}
+                            className="self-start mb-6 flex items-center text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors bg-white dark:bg-slate-800 px-4 py-2 rounded-full shadow-sm"
                         >
                             <ArrowLeft className="h-4 w-4 mr-1" />
-                            Back to Dashboard
+                            Return Home
                         </button>
 
                         <div className="text-center mb-8">
-                            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-2">
-                                Item Published!
+                            <div className="inline-block p-4 bg-green-100 dark:bg-green-900/30 rounded-full mb-4">
+                                <QrCode className="h-8 w-8 text-green-600 dark:text-green-400" />
+                            </div>
+                            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+                                It's Live!
                             </h2>
                             <p className="text-slate-500 dark:text-slate-400">
-                                Here is your unique QR code.
+                                Your item has been created.
                             </p>
                         </div>
 
@@ -168,21 +179,53 @@ export default function DashboardShell({ user, initialItems = [] }: { user: any,
                 )}
             </main>
 
-            {/* Bottom Menu */}
-            <ProtractorMenu onCreateClick={handleCreateClick} />
+            {/* Floating Navigation */}
+            {viewStack.length === 1 && (
+                <BottomNav
+                    currentTab={currentTab}
+                    onTabChange={handleTabChange}
+                    onAddClick={() => setIsCreateMode(true)}
+                />
+            )}
 
-            {/* Sidebar - Right Pane */}
-            <Sidebar
-                isOpen={isSidebarOpen}
-                onClose={() => setIsSidebarOpen(false)}
-                user={user}
-                items={items}
-                onLogout={handleLogout}
-                onItemClick={handleItemClick}
-            />
+            {/* Custom Category Picker Overlay */}
+            {isCreateMode && (
+                <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setIsCreateMode(false)}>
+                    <div className="bg-white dark:bg-slate-900 w-full max-w-md mx-4 mb-4 sm:mb-0 rounded-3xl p-6 shadow-2xl animate-in slide-in-from-bottom-10 duration-300" onClick={e => e.stopPropagation()}>
+                        <div className="text-center mb-6">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">What are we tagging?</h3>
+                            <p className="text-sm text-slate-500">Select a category to get started</p>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4">
+                            {[
+                                { id: 'Bag', icon: '🎒', label: 'Bag', color: 'bg-orange-100 text-orange-600' },
+                                { id: 'Bottle', icon: '💧', label: 'Bottle', color: 'bg-cyan-100 text-cyan-600' },
+                                { id: 'Bike', icon: '🚲', label: 'Bike', color: 'bg-green-100 text-green-600' },
+                                { id: 'Car', icon: '🚗', label: 'Car', color: 'bg-blue-100 text-blue-600' },
+                                { id: 'Identity', icon: '🆔', label: 'Identity', color: 'bg-indigo-100 text-indigo-600' },
+                                { id: 'Other', icon: '📦', label: 'Other', color: 'bg-slate-100 text-slate-600' },
+                            ].map(cat => (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => handleCategorySelect(cat.id)}
+                                    className={`flex flex-col items-center justify-center p-4 rounded-2xl transition-transform hover:scale-105 active:scale-95 ${cat.color.split(' ')[0]} dark:bg-opacity-20`}
+                                >
+                                    <span className="text-3xl mb-2">{cat.icon}</span>
+                                    <span className={`text-xs font-bold ${cat.color.split(' ')[1]} dark:text-white`}>{cat.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={() => setIsCreateMode(false)}
+                            className="w-full mt-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold text-sm"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <InstallPrompt />
-
         </div>
     )
 }
