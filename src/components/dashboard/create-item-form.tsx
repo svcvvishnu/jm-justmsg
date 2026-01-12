@@ -119,8 +119,8 @@ export default function CreateItemForm({ category, onCancel, onSuccess }: Create
                             </label>
                             <div
                                 className={`relative rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 overflow-hidden transition-all ${!imagePreview
-                                        ? 'h-32 hover:bg-slate-100 dark:hover:bg-slate-900'
-                                        : 'aspect-square'
+                                    ? 'h-32 hover:bg-slate-100 dark:hover:bg-slate-900'
+                                    : 'aspect-square'
                                     }`}
                             >
                                 {imagePreview ? (
@@ -207,7 +207,7 @@ export default function CreateItemForm({ category, onCancel, onSuccess }: Create
                             className="flex items-center px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-lg shadow-blue-600/20 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
                         >
                             {(isLoading || uploading) && <Loader2 className="animate-spin h-4 w-4 mr-2" />}
-                            Save and Share
+                            Publish Item
                         </button>
                     </div>
                 </form>

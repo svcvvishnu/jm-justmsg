@@ -26,9 +26,29 @@ export default function QRCodeGenerator({ url, title, category }: QRCodeGenerato
         }
     }
 
-    const copyLink = () => {
-        navigator.clipboard.writeText(url)
-        alert('Link copied to clipboard!')
+    const shareQR = async () => {
+        const canvas = qrRef.current?.querySelector('canvas')
+        if (canvas) {
+            try {
+                const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'))
+                if (!blob) return
+
+                const file = new File([blob], `${title.replace(/\s+/g, '_')}_qr.png`, { type: 'image/png' })
+
+                if (navigator.share) {
+                    await navigator.share({
+                        title: `QR Code for ${title}`,
+                        text: `Scan this QR code to send me a message regarding ${title}.`,
+                        files: [file]
+                    })
+                } else {
+                    // Fallback for desktop/unsupported
+                    alert('Sharing is not supported on this device/browser. Please use the Save button.')
+                }
+            } catch (error) {
+                console.error('Error sharing:', error)
+            }
+        }
     }
 
     return (
@@ -72,11 +92,11 @@ export default function QRCodeGenerator({ url, title, category }: QRCodeGenerato
                     Save
                 </button>
                 <button
-                    onClick={copyLink}
-                    className="flex-1 flex items-center justify-center gap-2 py-2 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium transition-colors"
+                    onClick={shareQR}
+                    className="flex-1 flex items-center justify-center gap-2 py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
                 >
-                    <Copy className="h-4 w-4" />
-                    Link
+                    <Share2 className="h-4 w-4" />
+                    Share QR
                 </button>
             </div>
 
