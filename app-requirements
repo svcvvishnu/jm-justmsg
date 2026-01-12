@@ -1,0 +1,28 @@
+I want to build a mobile app (that can be installed in IOS or Android) that can be used by user in following manner
+
+1. User can login using their phone number/email id and password, and signup
+2. landing page should be login page, and after login it should redirect to the profile page
+3. logout option should be available in the top right corner
+4. once teh user is logged int the landing page shoulb=d be profile page untill it is logged out.
+5. Once logged in , Right top should show the profile name, once clicked it should open the profile page in the =righ side bar.
+6. The profile page should show all the Items creaed and managed by that user. If any item is clicke then item detail page should be open in the main pane of the app
+7. User should be able to toggle the righ pane (user profile page)
+8. Landing page should have a protraccter type thing in the bottom with the option to create an item in the prefilled categriry like
+Bag, bottle, Car, Bike, etc and also customise option to create a new Item
+9. Once clicked the new item creation page should open in the main pane of the app
+10. This page should have image upload on left , and on the righ side , category prefilled by the clicked categiry,
+display name, this is the name that we show unders the category in the right pane of the user profile page.
+status, this is the status of the item, it can be active or inactive, message this is the message that is shown to the user who scan the QR code.
+11. Abbuton to publish should create the item and show the QR code in the main pane of the app.
+12. User should have an option to edit the messge and publish the item , once pusblihsed the qr code scanned should give teh latest messgae.
+13. We should also show stats on ho many times the QR code is scanned, last successfull scan, any messages from people who scan want to communicate to user.
+14. The QR code should have the logo of teh app embedded in it so that it can be identified as our app QR code.
+15. any person who scans the QR code should be able to see the published messgae and can send message to the user.
+16. the Item detail page should should lso show the message history from the people.
+17. Please build the application in modular fashion taht can be deployed in any free tier cloud provider and persistant storage.
+Please ask me if yuo have any questions.
+
+I want the app to be deploeyed in vercel, aand any free tier database that can be integrated with vercel.
+Please give me all steps on how to build and start mobile apps, how to build and start bacnkend and deploy steps if any for both mobile and backend.
+
+Please create a catchy logo image for the app

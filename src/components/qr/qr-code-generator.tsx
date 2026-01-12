@@ -1,0 +1,88 @@
+'use client'
+
+import { QRCodeCanvas } from 'qrcode.react'
+import { Download, Share2, Copy } from 'lucide-react'
+import { useRef } from 'react'
+
+type QRCodeGeneratorProps = {
+    url: string
+    title: string
+    category: string
+}
+
+export default function QRCodeGenerator({ url, title, category }: QRCodeGeneratorProps) {
+    const qrRef = useRef<HTMLDivElement>(null)
+
+    const downloadQR = () => {
+        const canvas = qrRef.current?.querySelector('canvas')
+        if (canvas) {
+            const pngUrl = canvas.toDataURL('image/png')
+            const downloadLink = document.createElement('a')
+            downloadLink.href = pngUrl
+            downloadLink.download = `${title.replace(/\s+/g, '_')}_qr.png`
+            document.body.appendChild(downloadLink)
+            downloadLink.click()
+            document.body.removeChild(downloadLink)
+        }
+    }
+
+    const copyLink = () => {
+        navigator.clipboard.writeText(url)
+        alert('Link copied to clipboard!')
+    }
+
+    return (
+        <div className="flex flex-col items-center space-y-6 p-6 max-w-sm mx-auto bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800">
+            <div className="text-center space-y-1">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                    {title}
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Scan to send a message
+                </p>
+            </div>
+
+            <div
+                ref={qrRef}
+                className="p-4 bg-white rounded-xl shadow-inner border border-slate-100"
+            >
+                <QRCodeCanvas
+                    value={url}
+                    size={200}
+                    level={"H"}
+                    bgColor={"#ffffff"}
+                    fgColor={"#000000"}
+                    imageSettings={{
+                        src: "/icon.png",
+                        x: undefined,
+                        y: undefined,
+                        height: 40,
+                        width: 40,
+                        excavate: true,
+                    }}
+                />
+            </div>
+
+            <div className="flex w-full gap-2">
+                <button
+                    onClick={downloadQR}
+                    className="flex-1 flex items-center justify-center gap-2 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                    <Download className="h-4 w-4" />
+                    Save
+                </button>
+                <button
+                    onClick={copyLink}
+                    className="flex-1 flex items-center justify-center gap-2 py-2 px-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-medium transition-colors"
+                >
+                    <Copy className="h-4 w-4" />
+                    Link
+                </button>
+            </div>
+
+            <p className="text-xs text-center text-slate-400">
+                Print this and attach it to your {category.toLowerCase()}.
+            </p>
+        </div>
+    )
+}
