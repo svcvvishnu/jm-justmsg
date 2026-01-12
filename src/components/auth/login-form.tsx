@@ -24,7 +24,15 @@ export default function LoginForm() {
                 setError(result.error)
                 setIsLoading(false)
             }
-        } catch (e) {
+        } catch (e: any) {
+            // Next.js redirection throws an error type named 'NEXT_REDIRECT'
+            // We should ignore this specific error or bubble it up if we weren't in an event handler.
+            // "Digest" errors often happen with redirects in server actions too.
+            if (e?.message === 'NEXT_REDIRECT' || e?.digest?.includes('NEXT_REDIRECT')) {
+                return // Let the redirect happen
+            }
+
+            console.error(e)
             setError('Something went wrong')
             setIsLoading(false)
         }
@@ -52,8 +60,8 @@ export default function LoginForm() {
                         <button
                             onClick={() => { setIsLogin(true); setError(null); }}
                             className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${isLogin
-                                    ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                                ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm'
+                                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                                 }`}
                         >
                             Log In
@@ -61,8 +69,8 @@ export default function LoginForm() {
                         <button
                             onClick={() => { setIsLogin(false); setError(null); }}
                             className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${!isLogin
-                                    ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm'
-                                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                                ? 'bg-white dark:bg-slate-700 text-blue-600 shadow-sm'
+                                : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
                                 }`}
                         >
                             Sign Up
