@@ -71,46 +71,56 @@ export default function DashboardShell({ user, initialItems = [] }: { user: any,
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950/20 text-slate-900 dark:text-white relative overflow-hidden transition-colors duration-500">
 
             {/* Top Bar */}
-            <div className="fixed top-0 left-0 right-0 h-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 z-20">
+            <div className="fixed top-0 left-0 right-0 h-16 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between px-4 z-20 shadow-sm transition-all">
                 <button
                     onClick={() => setCurrentView('home')}
-                    className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                    className="flex items-center gap-3 group"
                 >
-                    <div className="bg-blue-600 p-1.5 rounded-lg">
+                    <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-2 rounded-xl shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform duration-300">
                         <QrCode className="h-5 w-5 text-white" />
                     </div>
-                    <span className="font-bold text-lg tracking-tight">JustMsg</span>
+                    <span className="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300">
+                        JustMsg
+                    </span>
                 </button>
 
                 <button
                     onClick={() => setIsSidebarOpen(true)}
-                    className="flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-full transition-all pr-4 pl-2 border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+                    className="flex items-center gap-3 hover:bg-slate-100/50 dark:hover:bg-slate-800/50 p-1.5 pr-4 pl-2 rounded-full transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700/50 group"
                 >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xs shadow-md group-hover:shadow-lg transition-shadow">
                         {user?.email?.[0].toUpperCase()}
                     </div>
-                    <span className="text-sm font-medium hidden sm:block">
+                    <span className="text-sm font-medium hidden sm:block text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
                         {user?.email?.split('@')[0]}
                     </span>
-                    <Menu className="h-4 w-4 ml-1 text-slate-500" />
+                    <Menu className="h-4 w-4 ml-1 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors" />
                 </button>
             </div>
 
             {/* Main Content Area */}
-            <main className="pt-20 pb-32 px-4 max-w-4xl mx-auto min-h-screen flex flex-col">
+            <main className="pt-24 pb-32 px-4 max-w-4xl mx-auto min-h-screen flex flex-col">
                 {/* Placeholder Content for now */}
                 {currentView === 'home' && (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4 opacity-50 mt-20">
-                        <div className="w-48 h-48 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 animate-pulse">
-                            <span className="text-4xl">👋</span>
+                    <div className="flex-1 flex flex-col items-center justify-center text-center space-y-6 opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-forwards mt-10">
+                        <div className="relative group cursor-default">
+                            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full opacity-20 group-hover:opacity-30 blur-xl transition-opacity duration-500"></div>
+                            <div className="relative w-40 h-40 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-2xl shadow-blue-900/10 dark:shadow-blue-900/20 border border-slate-100 dark:border-slate-800">
+                                <span className="text-6xl filter drop-shadow-sm group-hover:scale-110 transition-transform duration-300">👋</span>
+                            </div>
                         </div>
-                        <h2 className="text-2xl font-bold text-slate-400">Welcome Back!</h2>
-                        <p className="text-slate-500 max-w-xs">
-                            Select an item from the menu below to get started, or check your profile.
-                        </p>
+
+                        <div className="space-y-2 max-w-md mx-auto">
+                            <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                                Welcome Back!
+                            </h2>
+                            <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-lg">
+                                Ready to organize? Tap the <span className="font-bold text-blue-600 dark:text-blue-400 mx-1">+</span> below to add a new item and create a smart QR code.
+                            </p>
+                        </div>
                     </div>
                 )}
 
