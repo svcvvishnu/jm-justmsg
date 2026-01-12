@@ -37,15 +37,10 @@ export async function sendMessage(formData: FormData) {
 export async function incrementScanCount(itemId: string) {
     const supabase = await createClient()
 
-    // We can't do atomic increment easily with simple update without getting current value first or using RPC.
-    // For MVP, risk race condition: get -> update.
+    // Use RPC function to increment safely without RLS issues for anonymous users
+    const { error } = await supabase.rpc('increment_scan_count', { row_id: itemId })
 
-    const { data: item } = await supabase.from('items').select('scan_count').eq('id', itemId).single()
-
-    if (item) {
-        await supabase.from('items').update({
-            scan_count: (item.scan_count || 0) + 1,
-            last_scan: new Date().toISOString()
-        }).eq('id', itemId)
+    if (error) {
+        console.error('Error incrementing scan count:', error)
     }
 }

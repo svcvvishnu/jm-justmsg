@@ -13,11 +13,13 @@ export default function ProtractorMenu({ onCreateClick }: ProtractorMenuProps) {
     const toggleOpen = () => setIsOpen(!isOpen)
 
     // Menu items placed in an arc
+    // Menu items placed in an arc
     const menuItems = [
         { id: 'Bag', icon: <ShoppingBag className="h-5 w-5" />, label: 'Bag', color: 'bg-orange-500' },
-        { id: 'Car', icon: <Car className="h-5 w-5" />, label: 'Car', color: 'bg-blue-500' },
+        { id: 'Bottle', icon: <div className="text-sm font-bold">💧</div>, label: 'Bottle', color: 'bg-cyan-500' },
         { id: 'Bike', icon: <Bike className="h-5 w-5" />, label: 'Bike', color: 'bg-green-500' },
-        { id: 'Custom', icon: <Package className="h-5 w-5" />, label: 'Custom', color: 'bg-purple-500' },
+        { id: 'Car', icon: <Car className="h-5 w-5" />, label: 'Car', color: 'bg-blue-500' },
+        { id: 'Identity', icon: <div className="text-sm font-bold">🆔</div>, label: 'Identity', color: 'bg-indigo-500' },
     ]
 
     return (
@@ -29,9 +31,9 @@ export default function ProtractorMenu({ onCreateClick }: ProtractorMenuProps) {
 
                 {menuItems.map((item, index) => {
                     // Calculate vague positions for an arc 
-                    // 4 items: spread across 180 degrees or so.
-                    // Angles: -60, -20, 20, 60 ? or -75, -25, 25, 75
-                    const rotations = [-75, -25, 25, 75]
+                    // 5 items: spread across 180 degrees (-90 to 90)
+                    // Angles: -72, -36, 0, 36, 72
+                    const rotations = [-72, -36, 0, 36, 72]
                     const rotation = rotations[index]
 
                     return (
