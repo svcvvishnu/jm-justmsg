@@ -23,10 +23,10 @@ export default function ProtractorMenu({ onCreateClick }: ProtractorMenuProps) {
     ]
 
     return (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center">
+        <div className="fixed bottom-8 left-0 right-0 z-40 flex flex-col items-center pointer-events-none">
 
             {/* Arc Items */}
-            <div className={`relative w-64 h-32 flex justify-center items-end transition-all duration-300 ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-75 pointer-events-none'}`}>
+            <div className={`relative w-64 h-32 flex justify-center items-end transition-all duration-300 pointer-events-none ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}>
                 {/* This container pushes items up. We use absolute positioning with transforms to place them in an arc */}
 
                 {menuItems.map((item, index) => {
@@ -43,7 +43,7 @@ export default function ProtractorMenu({ onCreateClick }: ProtractorMenuProps) {
                                 onCreateClick(item.id)
                                 setIsOpen(false)
                             }}
-                            className={`absolute bottom-0 text-white shadow-lg shadow-black/20 flex flex-col items-center justify-center transition-transform hover:scale-110`}
+                            className={`absolute bottom-0 text-white shadow-lg shadow-black/20 flex flex-col items-center justify-center transition-transform hover:scale-110 pointer-events-auto`}
                             style={{
                                 transform: `rotate(${rotation}deg) translateY(-100px) rotate(${-rotation}deg)`,
                                 transformOrigin: 'bottom center',
@@ -66,7 +66,7 @@ export default function ProtractorMenu({ onCreateClick }: ProtractorMenuProps) {
             {/* Main FAB Trigger */}
             <button
                 onClick={toggleOpen}
-                className={`relative z-50 h-16 w-16 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 ${isOpen ? 'bg-slate-800 text-white rotate-45' : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-105'
+                className={`relative z-50 h-16 w-16 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 pointer-events-auto ${isOpen ? 'bg-slate-800 text-white rotate-45' : 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-105'
                     }`}
             >
                 <Plus className="h-8 w-8" />
@@ -75,7 +75,7 @@ export default function ProtractorMenu({ onCreateClick }: ProtractorMenuProps) {
             {/* Overlay Backdrop */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-white/80 dark:bg-slate-950/80 backdrop-blur-sm z-30"
+                    className="fixed inset-0 bg-white/80 dark:bg-slate-950/80 backdrop-blur-sm z-30 pointer-events-auto"
                     onClick={() => setIsOpen(false)}
                 />
             )}
