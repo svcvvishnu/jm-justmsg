@@ -26,7 +26,7 @@ export default function ProtractorMenu({ onCreateClick }: ProtractorMenuProps) {
         <div className="fixed bottom-8 left-0 right-0 z-40 flex flex-col items-center pointer-events-none">
 
             {/* Arc Items */}
-            <div className={`relative w-64 h-32 flex justify-center items-end transition-all duration-300 pointer-events-none ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}>
+            <div className={`relative w-64 h-32 flex justify-center items-end transition-all duration-300 pointer-events-none z-50 ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}>
                 {/* This container pushes items up. We use absolute positioning with transforms to place them in an arc */}
 
                 {menuItems.map((item, index) => {
@@ -75,7 +75,7 @@ export default function ProtractorMenu({ onCreateClick }: ProtractorMenuProps) {
             {/* Overlay Backdrop */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-white/80 dark:bg-slate-950/80 backdrop-blur-sm z-30 pointer-events-auto"
+                    className="fixed inset-0 bg-white/60 dark:bg-slate-950/60 backdrop-blur-sm z-30 pointer-events-auto"
                     onClick={() => setIsOpen(false)}
                 />
             )}
