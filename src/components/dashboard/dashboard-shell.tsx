@@ -11,6 +11,7 @@ import { signout } from '@/app/auth/actions'
 import ItemDetail from '@/components/dashboard/item-detail'
 import { createClient } from '@/utils/supabase/client'
 import { useEffect } from 'react'
+import InstallPrompt from '@/components/pwa/install-prompt'
 
 export default function DashboardShell({ user, initialItems = [] }: { user: any, initialItems?: any[] }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -169,6 +170,8 @@ export default function DashboardShell({ user, initialItems = [] }: { user: any,
                 onLogout={handleLogout}
                 onItemClick={handleItemClick}
             />
+
+            <InstallPrompt />
 
         </div>
     )
